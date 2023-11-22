@@ -7,7 +7,7 @@
 
             <UForm :state="state" :schema="schema" ref="form" @submit="save">
                 <UFormGroup :required="true" label="Transaction Type" name="type" class="mb-4">
-                    <USelect placeholder="Select the transaction Type" :options="types" v-model="state.type" />
+                    <USelect placeholder='Select the transaction type' Type :options="types" v-model="state.type" />
                 </UFormGroup>
 
                 <UFormGroup label="Amount" :required="true" name="amount" class="mb-4">
@@ -78,7 +78,7 @@ const schema = z.intersection(
 const form = ref(null)
 const isLoading = ref(false)
 const supabase = useSupabaseClient()
-const toast = useToast()
+const { toastError, toastSuccess } = useAppToast()
 
 const save = async () => {
     if (form.value.errors.length) return
@@ -89,20 +89,17 @@ const save = async () => {
             .upsert({ ...state.value })
 
         if (!error) {
-            toast.add({
-                title: 'Transaction saved',
-                icon: 'i-heroicons-check-circle',
+            toastSuccess({
+                title: 'Transaction saved'
             })
             isOpen.value = false
             emit('saved')
         }
         throw error
     } catch (e) {
-        toast.add({
+        toastError({
             title: 'Transaction not saved',
-            description: e.message,
-            icon: 'i-heroicon-exclamation-circle',
-            color: 'red'
+            description: e.message
         })
     } finally {
         isLoading.value = false
