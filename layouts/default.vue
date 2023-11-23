@@ -12,11 +12,11 @@ useHead({
     link: [
         {
             rel: 'preconnect',
-            href: 'http://fonts.googleapis.com'
+            href: 'https://fonts.googleapis.com'
         },
         {
             rel: 'stylesheet',
-            href: 'http://fonts.googleapis.com/css2?family=Inter&display=swap',
+            href: 'https://fonts.googleapis.com/css2?family=Inter&display=swap',
             crossorigin: ''
         }
     ]
