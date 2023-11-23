@@ -4,13 +4,14 @@
             Sign In to Fintrack
         </template>
 
-        <form @submit="handleLogin">
+        <form @submit.prevent="handleLogin">
             <UFormGroup label="Email" name="email" class="mb-4" :required="true"
                 help="You will receive an email with the confirmation link">
                 <UInput type="email" placeholder="Email" required v-model="email" />
             </UFormGroup>
 
-            <UButton type="submit" variant="solid" color="black" :loading="pending" :disabled="pending">Sign In</UButton>
+            <UButton type="submit" variant="solid" color="black" :loading="pending" :disabled="pending">Sign In
+            </UButton>
         </form>
     </UCard>
     <UCard v-else>
@@ -18,7 +19,7 @@
             Email has been sent
         </template>
         <div class="text-center">
-            <p>We have setn an email to <strong>{{ email }}</strong> with a link to sign in.</p>
+            <p>We have sent an email to <strong>{{ email }}</strong> with a link to sign in.</p>
             <p>
                 <strong>Important:</strong> The link will expire in 5 minutes.
             </p>
@@ -48,16 +49,16 @@ const handleLogin = async () => {
             }
         })
 
-        if (error) {
-            toastError({
-                title: 'Error authenticating',
-                description: error.message,
-            })
-        } else {
-            success.value = true
-        }
+        if (error) throw error
+
+        success.value = true
+
     } catch (error) {
 
+        toastError({
+            title: 'Error authenticating',
+            description: error.message,
+        })
     } finally {
         pending.value = false
     }
