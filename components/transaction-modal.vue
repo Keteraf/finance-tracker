@@ -2,12 +2,13 @@
     <UModal v-model="isOpen">
         <UCard>
             <template #header>
-                Add Transaction
+                {{ isEditing ? 'Edit' : 'Add' }} Transaction
             </template>
 
             <UForm :state="state" :schema="schema" ref="form" @submit="save">
                 <UFormGroup :required="true" label="Transaction Type" name="type" class="mb-4">
-                    <USelect placeholder='Select the transaction type' Type :options="types" v-model="state.type" />
+                    <USelect :disabled="isEditing" placeholder='Select the transaction type' Type :options="types"
+                        v-model="state.type" />
                 </UFormGroup>
 
                 <UFormGroup label="Amount" :required="true" name="amount" class="mb-4">
@@ -39,8 +40,14 @@ import { z } from 'zod'
 
 
 const props = defineProps({
-    modelValue: Boolean
+    modelValue: Boolean,
+    transaction: {
+        type: Object,
+        required: false
+    }
 })
+
+const isEditing = computed(() => !!props.transaction)
 
 const emit = defineEmits(['update:modelValue', 'saved'])
 
@@ -86,7 +93,10 @@ const save = async () => {
     isLoading.value = true
     try {
         const { error } = await supabase.from('transactions')
-            .upsert({ ...state.value })
+            .upsert({
+                ...state.value,
+                id: props.transaction?.id
+            })
 
         if (!error) {
             toastSuccess({
@@ -94,19 +104,24 @@ const save = async () => {
             })
             isOpen.value = false
             emit('saved')
-        }
-        throw error
-    } catch (e) {
+        } else throw error
+    } catch (error) {
         toastError({
             title: 'Transaction not saved',
-            description: e.message
+            description: error.message
         })
     } finally {
         isLoading.value = false
     }
 }
 
-const initialState = {
+const initialState = isEditing.value ? {
+    type: props.transaction.type,
+    amount: props.transaction.amount,
+    created_at: props.transaction.created_at.split('T')[0],
+    description: props.transaction.description,
+    category: props.transaction.category,
+} : {
     type: undefined,
     amount: 0,
     created_at: undefined,
